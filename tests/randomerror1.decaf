@@ -1,0 +1,56 @@
+/*
+ * Random type check error test
+ * There are 5 errors
+ *  1.  At line 29 imcompatible types int = null
+ *  2.  At line 42 imcompatible types setting value to value
+ *  3.  At line 43 reqired type boolean in if cond
+ *  4.  At line 44 break outside of while
+ *  5.  At line 47 unresloved symbol g
+ */
+
+
+class yo{
+  public int i;
+    
+  public static int j(){
+    return 1;
+  }
+  
+  public static yo z(){
+    return new yo();
+  }
+  
+  private static yo y(){
+    return new yo();
+  }
+}
+
+class randomerror1 extends yo{
+  public int yo1 = new yo().j();
+  int [] h = null;
+  int t = h.length;
+  char p = i;  
+  int hh = null;                  /*Imcompatible types int = null*/
+  int hy = p;
+  
+  public int j = j();
+   
+  public static int g(){
+
+    int t;
+    
+    1=1;                          /*Imcompatible types setting value to value*/
+    if(3){                        /*Should not be of type int in cond*/
+      break;                      /*Break outside of while*/
+    }
+        
+    t = g.length;                 /*Unresolved var g*/
+    return 5*5+2;
+  }  
+    
+  public static String h(){
+    return "";
+  }
+  
+  
+}

@@ -1,0 +1,26 @@
+
+class Y {
+  int f() {
+    return 2;
+  }
+}
+
+class X extends Y {
+  int g() {
+    return 1 + f();
+  }
+}
+
+class Main {
+
+  static void main(String[] argv)
+  {
+    X x = new X();
+
+    IO.putString("x.g() = ");
+    IO.putInt(x.g());
+    IO.putString("\nx.f() = ");
+    IO.putInt(x.f());
+    IO.putString("\n");
+  }
+}

@@ -1,0 +1,107 @@
+
+class RSA
+{
+  private static int sq(int x)
+  { return x * x; }
+
+  public static int powermod(int x, int n, int m)
+  {
+    if(n == 1)
+      return x % m;
+    if( (n % 2) == 1)
+      return (x * sq( powermod(x, (n - 1)/2, m) )) % m;
+    return (sq( powermod(x, n / 2, m) )) % m;
+  }
+
+  public RSA(int public_n)
+  { n = public_n; }
+
+  protected int n;
+}
+
+class RSA_Encrypt extends RSA
+{
+  public int Encrypt(int x)
+  {
+    return powermod(x, e, n);
+  }
+
+  public RSA_Encrypt(int private_e, int public_n)
+  {
+    RSA(public_n);
+    e = private_e;
+  }
+  private int e;
+}
+
+class RSA_Decrypt extends RSA
+{
+  public int Decrypt(int x)
+  {
+    return powermod(x, d, n);
+  }
+
+  public RSA_Decrypt(int public_d, int public_n)
+  {
+    RSA(public_n);
+    d = public_d;
+  }
+  private int d;
+}
+
+
+
+class RSAExample
+{
+
+  public static void main(String[] argv)
+  {
+    //first build the keys
+    int p = 11, q = 13, e = 17;
+
+    int d, n;
+    n = p * q;
+
+    //find d
+    int pq1 = (p-1) * (q-1);
+    d = 1;
+    while(d < pq1)
+    {
+      if( (d*e) % pq1 == 1)
+        break;
+      d = d + 1;
+    }
+
+    RSA_Decrypt decryptor = new RSA_Decrypt(d, n);
+    RSA_Encrypt encryptor = new RSA_Encrypt(e, n);
+
+    IO.putString("Keys:\n");
+
+    IO.putString(" d (public)= ");
+    IO.putInt(d);
+    IO.putString("\n");
+
+    IO.putString(" n (public) = ");
+    IO.putInt(n);
+    IO.putString("\n");
+
+    IO.putString(" e (private) = ");
+    IO.putInt(e);
+    IO.putString("\n");
+
+    IO.putString("Value Encrypted Decrypted\n");
+    int i = 0;
+    while(i <= 30)
+    {
+      int encrypted = encryptor.Encrypt(i);
+      int decrypted = decryptor.Decrypt(encrypted);
+      IO.putInt(i);
+      IO.putString("\t");
+      IO.putInt(encrypted);
+      IO.putString("\t");
+      IO.putInt(decrypted);
+      IO.putString("\n");
+      i = i + 1;
+    }
+  }
+}

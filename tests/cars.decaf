@@ -1,0 +1,88 @@
+
+class Car {
+  private String builder;
+  private String model;
+
+  public Car(String b, String m)
+  {
+    builder = b;
+    model = m;
+  }
+
+  public String builder()
+  {
+    return builder;
+  }
+
+  public String model()
+  {
+    return model;
+  }
+} 
+
+class Ford extends Car {
+  public Ford(String x)
+  {
+    Car("Ford", x);
+  }
+}
+
+class Chevrolet extends Car {
+  public Chevrolet(String x)
+  {
+    Car("Chevrolet", x);
+  }
+}
+
+class Escort extends Ford {
+  public Escort()
+  {
+    Ford("Escort");
+  }
+}
+
+class F150 extends Ford {
+  public F150()
+  {
+    Ford("F150");
+  }
+}
+
+class Suburban extends Chevrolet {
+  public Suburban()
+  {
+    Chevrolet("Suburban");
+  }
+}
+
+class Caprice extends Chevrolet {
+  public Caprice()
+  {
+    Chevrolet("Caprice");
+  }
+}
+
+class Cars
+{
+  static void describe(Car c)
+  {
+    IO.putString(c.builder());
+    IO.putString(" ");
+    IO.putString(c.model());
+    IO.putString("\n");
+  }
+
+  static void main(String argv[])
+  {
+    Escort escort = new Escort();
+    F150 f150 = new F150();
+    Caprice caprice = new Caprice();
+    Suburban suburban = new Suburban();
+
+    describe(escort);
+    describe(f150);
+    describe(caprice);
+    describe(suburban);
+  }
+}
+

@@ -1,0 +1,57 @@
+/*
+ * Random type check error test
+ * There are 3 errors
+ *  1.  At line 42 illegal reference from static context
+ *  2.  At line 45 illegal access of private method in super
+ *  3.  At line 53 expecting type string in return
+ */
+
+
+class yo{
+  public int i;
+    
+  public static int j(){
+    return 1;
+  }
+  
+  public static yo z(){
+    return new yo();
+  }
+  
+  private static yo y(){
+    return new yo();
+  }
+}
+
+class randomerror2 extends yo{
+  public int yo1 = new yo().j();
+  int [] h = null;
+  int t = h.length;
+  char p = i;  
+  int hh = 0;                  
+  int hy = p;
+  
+  public int j = j();
+   
+  public static int g(){
+
+    int t;
+    yo kk;
+    
+    if(true){
+      t=i;                /*Accessing non static i from static context*/ 
+    }    
+    
+    kk = yo.y();          /*Private access restriction*/
+    kk = yo.z();
+    t = yo.z().i;
+        
+    return 5*5+2;
+  }  
+    
+  public static String h(){
+    return 'c';           /*Expecting string*/
+  }
+  
+  
+}

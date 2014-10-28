@@ -1,0 +1,11 @@
+public class args{
+    public static void main(String[] args){
+	int i = 0;
+	IO.putString("The arguments to this program are: ");
+	for(i = 0; i < args.length; i++){
+	    IO.putString(args[i]);
+	    IO.putString(" ");
+        }
+	IO.putString("\n");
+    }
+}

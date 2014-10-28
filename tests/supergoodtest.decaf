@@ -1,0 +1,33 @@
+class yo{
+  public int i;
+  
+  private static int j(){
+    return 1;
+  }
+  
+  public static int z(){
+    return 1;
+  }
+}
+
+class supergoodtest extends yo{
+  public int yo = i;
+  public int yo1 = z();
+  
+  public int j = j();
+   
+  public static int g(){
+    return 1;
+  }
+  
+  private static int j(){
+    return 1;
+  }
+  
+  public static String h(){
+    return "";
+  }
+}
+
+public static void main(String[] args){
+}

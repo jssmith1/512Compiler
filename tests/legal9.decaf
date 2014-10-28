@@ -1,0 +1,71 @@
+/* all the callout function calls are like printfs.  They
+    will be rewritten before the final due date using putInt
+    and putString.  Feel free to make the changes yourself 
+*/
+
+
+class Legal9Program
+{
+    int array_cst_in_class[4];
+
+    void test(int i, int j)
+    {
+        IO.putString("test received ");
+	IO.putInt(i);
+	IO.putString(" should be ");
+	IO.putInt(j);
+	IO.putString("\n");
+    }
+
+    int test2()
+    {
+        return array_cst_in_class[0];
+    }
+
+    int test3()
+    {
+        array_cst_in_class[1] = array_cst_in_class[2];
+	return 1;
+    }
+
+    void main()
+    {
+	int i1, i2, i3;
+
+        // first test all the local/stack array stuff
+
+	i1 = 0;
+	i2 = 0;
+	i3 = 0;
+
+	while(i1 < 4) {
+	  array_cst_in_class[i1] = i1;
+	  i1 = i1+1;
+	}
+
+        i1 = 0;
+	while(i1 < 4) {
+          IO.putInt(i1);
+          IO.putString(":");
+          IO.putInt(array_cst_in_class[i1]);
+          i1 = i1+1;
+	}
+        callout("printf","\n");
+
+	test(array_cst_in_class[2],2);
+	test(array_cst_in_class[i1 * 4 - 14],2);
+
+        callout("printf","should be 2: %d\n",
+	        array_cst_in_class[array_cst_in_class[2]]);
+
+	array_cst_in_class[0] = array_cst_in_class[1];
+
+        callout("printf","should be 2: %d\n",
+	        1+array_cst_in_class[array_cst_in_class[test2()]]);
+
+        callout("printf","should be 2: %d\n",
+	        array_cst_in_class[array_cst_in_class[test3()]]);
+    }
+}
+
+

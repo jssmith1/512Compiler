@@ -1,0 +1,7 @@
+#! /usr/bin/bash
+
+for FILE in "$(ls)";
+do
+	../decaf $FILE > $FILE.output
+done
+	

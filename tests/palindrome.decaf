@@ -1,0 +1,25 @@
+class Palindrome {
+  public static void main(String[] args) {
+    IO.putString("Palindrome Test v1.0");
+    IO.putString("Please enter a string: ");
+    char A[] = new char[100];
+    int i = 0;
+    while (true) {
+      if (i >= 100) {
+        break;
+      } else {
+        A[i] = IO.getChar();
+      }
+      i = i + 1;
+    }
+    int j = 0;
+    while (j < (i+1)/2) {
+      if (A[j] != A[i-j-1]) {
+        IO.putString("Sorry, that is not a palindrome.");
+        return;
+      }
+      j = j + 1;
+    }
+    IO.putString("Congratulations, this is a palindrome!");
+  }
+}

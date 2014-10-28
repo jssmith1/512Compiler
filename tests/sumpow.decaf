@@ -1,0 +1,59 @@
+
+class SumPowers {
+  static int pow(int x, int n)
+  {
+    int i = 1;
+    int p = 1;
+    while(i <= n) {
+      p = p * x;
+      i = i + 1;
+    }
+    return p;
+  }
+
+  static int sumpowers(int n, int k)
+  {
+    int i = 1;
+    int sum = 0;
+    while(i <= n) {
+      sum = sum + pow(i, k);
+      i = i + 1;
+    }
+    return sum;
+  }
+
+  static void main(String argv[])
+  {
+    IO.putString("This program computes the sum for\n");
+    IO.putString("   i = 1 to N of i to the K-th power\n");
+
+    int N = 0;
+    int K = 0;
+
+    while (true) {
+      IO.putString("\nEnter the value of N:");
+      N = IO.getInt();
+      if (N < 1) {
+        IO.putString("N must be positive\n");
+        continue;
+      }
+      IO.putString("\nEnter the value of K:");
+      K = IO.getInt();
+      if (K < 0) {
+        IO.putString("K must be non-negative\n");
+        continue;
+      }
+      break;
+    }
+
+    IO.putString("Computing the sum for i = 1 to ");
+    IO.putInt(N);
+    IO.putString(" of i to the ");
+    IO.putInt(K);
+    IO.putString("\n");
+    int x = sumpowers(N, K);
+    IO.putString("The result is: ");
+    IO.putInt(x);
+    IO.putString("\n");
+  }
+}

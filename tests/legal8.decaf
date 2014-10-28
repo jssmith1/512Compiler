@@ -1,0 +1,44 @@
+/*  Note: The  callout function calls have to be rewitten.
+   Feel free to make the chanegs yourself.
+*/
+
+class Legal8Program
+{
+    int input;   // zero at start
+
+    int main()
+    {
+        int result;
+
+        if (input == 0) 
+	{
+	   input = 10;
+	}
+
+	if (input == 1)
+	{
+	   return 1;
+	}
+
+	if (input == 2)
+	{
+	   return 1;
+	}
+
+        input = input - 1;
+        result = main();
+
+        input = input + 1;
+	input = input - 2;
+	result = result + main(); 
+	input = input + 2;
+
+       
+	if (input == 10)
+	{
+	    callout("printf","%d\n",result);
+	}
+        return result;
+    }
+}
+

@@ -14,7 +14,7 @@ decaf.tab.h: decaf.y
 	bison -Wall -d -v decaf.y
 
 decaf.tab.c: decaf.y
-	bison -Wall -d -v decaf.y
+	bison -W -d -v decaf.y
 
 lex.yy.c: decaf.l decaf.tab.h
 	flex decaf.l

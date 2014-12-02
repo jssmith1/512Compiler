@@ -66,7 +66,7 @@ Super:
 
 
 Members:
-								{}
+%empty							{}
 |		Members Member			{}
 ;
 
@@ -89,8 +89,8 @@ Ctor:
 ;
 
 Modifiers:
-						{}
-|		Modifiers Modifier
+%empty								{}
+|		Modifiers Modifier 		{}
 ;
 
 Modifier:
@@ -147,7 +147,7 @@ Block:
 ;
 
 Statements:
-										{}
+%empty									{}
 |		Statements Statement			{}
 
 Statement:
@@ -241,8 +241,8 @@ ActualArgs:
 ;
 
 ExprList:
-		Expression				{}
-|		ExprList Expression		{}
+		Expression						{}
+|		ExprList COMMA Expression		{}
 ;
 %%
 const char * const* token_table = yytname;

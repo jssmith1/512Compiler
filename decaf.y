@@ -35,7 +35,8 @@ int yyerror(const char * s);
 %left DIV
 %left MUL
 %precedence NOT UMINUS UPLUS
-
+%precedence IFX
+%precedence ELSE
 
 
 %union { 
@@ -156,7 +157,7 @@ Statements:
 Statement:
 		SEMICOLON													{}
 |		Type VarDeclaratorList SEMICOLON							{}
-|		IF LPAREN Expression RPAREN Statement						{}
+|		IF LPAREN Expression RPAREN Statement %prec IFX						{}
 |		IF LPAREN Expression RPAREN Statement ELSE Statement		{}
 |		Expression SEMICOLON										{}
 |		WHILE LPAREN RPAREN Statement								{}

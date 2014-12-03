@@ -45,3 +45,4 @@ Temporary Items
 decaf.output
 decaf.tab.*
 lex.yy.*
+decaf.o

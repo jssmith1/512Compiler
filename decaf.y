@@ -121,7 +121,7 @@ Type:
 
 BracketLst:
 %empty										{}
-|		BracketLst LBRACKET RBRACKET		{}
+|		BracketLst DIM		{}
 ;
 
 PrimitiveType:
@@ -142,8 +142,7 @@ VarDeclarator:
 ;
 
 VarDeclaratorId:
-		IDENTIFIER								{}
-|		VarDeclaratorId LBRACKET RBRACKET
+		IDENTIFIER	BracketLst					{}
 ;
 
 Block:

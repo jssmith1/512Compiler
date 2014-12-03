@@ -42,9 +42,6 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-decaf.tab.o
 decaf.output
-decaf.tab.c
-decaf.tab.o
-*.o
-decaf.tab.c
+decaf.tab.*
+lex.yy.*

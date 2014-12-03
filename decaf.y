@@ -4,7 +4,7 @@
 %token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET SEMICOLON COMMA PERIOD
 %token ASSIGN GREATER LESS NOT EQ GEQ LEQ NEQ
 %token PLUS MINUS MUL DIV AND OR MOD
-%token <sVal> IDENTIFIER CHARACTER STRING BOOLEAN_LITERAL
+%token <sVal> IDENTIFIER CHARACTER STRING BOOLEAN_LITERAL DIM
 %token <iVal> INTEGER
 
 
@@ -115,9 +115,13 @@ FormalArg:
 ;
 
 Type:
-		PrimitiveType						{}
-|		IDENTIFIER							{}
-|		Type LBRACKET RBRACKET				{}
+		PrimitiveType BracketLst			{}
+|		IDENTIFIER	BracketLst				{}
+;
+
+BracketLst:
+%empty										{}
+|		BracketLst LBRACKET RBRACKET		{}
 ;
 
 PrimitiveType:

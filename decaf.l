@@ -1,6 +1,7 @@
 idC [$0-9a-zA-Z_]
 idsC [$a-zA-Z_]
-
+space [ \n\t\r]
+dimension ("["{space}*"]"{space}*)+
 
 %x COMMENT
 %option yylineno
@@ -119,6 +120,11 @@ int commentStart;
 					return INTEGER;
 				}
 
+{dimension}				{
+							yylval.sVal=yytext;
+							return DIM;
+						}
+
 \'([^\'\n\\]|(\\.))\'   	{
 								yylval.sVal = yytext;
   								return CHARACTER;
@@ -149,11 +155,11 @@ int commentStart;
 					}
 
 
-[ \n\t]
+{space}
 
 <<EOF>>         return -1;
 
-.				yyerror("Invalid Character!");
+.				{printf("Stray %s on line %d\n", yytext, yylineno);}
 %%
 
 int yywrap(void) {

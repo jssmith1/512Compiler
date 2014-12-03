@@ -1,2 +1,5 @@
-%token ASSIGN GREATER LESS NOT EQ GEQ LEQ NEQ
-%token PLUS MINUS MUL DIV AND OR MOD
+int   [   ] [] []
+
+  
+
+foo[4]

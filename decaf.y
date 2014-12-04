@@ -1,23 +1,32 @@
-%token BREAK CLASS CONTINUE ELSE EXTENDS IF NEW PRIVATE
-%token PROTECTED PUBLIC RETURN STATIC SUPER THIS WHILE
-%token BOOLEAN CHAR INT VOID DECAF_NULL
-%token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET SEMICOLON COMMA PERIOD
-%token ASSIGN GREATER LESS NOT EQ GEQ LEQ NEQ
-%token PLUS MINUS MUL DIV AND OR MOD
-%token <sVal> IDENTIFIER CHARACTER STRING BOOLEAN_LITERAL DIM
-%token <iVal> INTEGER
+%token BREAK CLASS CONTINUE ELSE EXTENDS IF NEW PRIVATE PROTECTED PUBLIC RETURN STATIC SUPER THIS WHILE BOOLEAN CHAR INT VOID DECAF_NULL
+%token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET SEMICOLON COMMA PERIOD ASSIGN GREATER LESS NOT EQ GEQ LEQ NEQ PLUS MINUS MUL DIV AND OR MOD
+%token IDENTIFIER CHARACTER STRING BOOLEAN_LITERAL DIM
+%token INTEGER
 
 
 %token-table
 %locations
 %{
+#ifndef YYSTYPE
+#define YYSTYPE char*
+#endif
+
 
 #include <cstdlib>
 #include <cstdio>
+#include <iostream>
+#include <stdio.h>
+#include <string.h>
+#include "tokenType.h"
+
 #define YYDEBUG 1
+
+using namespace std;
+
 int yylex();
 int yyerror(const char * s);
 
+extern Token * curTok;
 %}
 
 %right ASSIGN
@@ -39,12 +48,6 @@ int yyerror(const char * s);
 %precedence ELSE
 
 
-%union { 
- int iVal; /* integer value */ 
- char * sVal; /* string value*/ 
- 
- //nodeType *nPtr; /* node pointer */ 
-}; 
 
 %%
 
@@ -58,8 +61,10 @@ Classes:
 ;
 
 Class:
-		CLASS IDENTIFIER Super LBRACE Members RBRACE		{}
-|		CLASS IDENTIFIER LBRACE Members RBRACE				{}
+		CLASS IDENTIFIER Super LBRACE Members RBRACE		{}							
+|		CLASS IDENTIFIER LBRACE Members RBRACE				{	cout << "here" << endl;
+																(curTok->type==RBRACE)? cout << "True": cout << "False";
+															}
 ;
 
 Super:
@@ -248,6 +253,8 @@ ExprList:
 		Expression						{}
 |		ExprList COMMA Expression		{}
 ;
+
+
 %%
 const char * const* token_table = yytname;
 

@@ -7,64 +7,73 @@ dimension ("["{space}*"]"{space}*)+
 %option yylineno
 
 %{
+#define TOKEN(t) (curTok = new Token(t, strdup(yytext), yylineno));
+
+#ifndef YYSTYPE
+#define YYSTYPE char*
+#endif
+
+
 #include "decaf.tab.h"
 #include <iostream>
+#include "tokenType.h"
 using namespace std;
-
 int yyerror(const char * s);
 int commentStart;
+
+
+
+Token * curTok;
 %} 
 
 %%
-"break"			return BREAK;
-"class"			return CLASS;
-"continue"		return CONTINUE;
-"else"			return ELSE;
-"extends"		return EXTENDS;
-"if"			return IF;
-"new"			return NEW;
-"private"		return PRIVATE;
-"protected"		return PROTECTED;
-"public"		return PUBLIC;
-"return"		return RETURN;
-"static"		return STATIC;
-"super"			return SUPER;
-"this"			return THIS;
-"while"			return WHILE;
-"boolean"		return BOOLEAN; 
-"char" 			return CHAR;
-"int" 			return INT;
-"void"			return VOID;
-
-"("				return LPAREN;
-")"				return RPAREN;
-"{"				return LBRACE;
-"}"				return RBRACE;
-"["				return LBRACKET;
-"]"				return RBRACKET;
-";"				return SEMICOLON;
-","				return COMMA;
-"."				return PERIOD;
-
-"="				return ASSIGN;
-">"				return GREATER;
-"<"				return LESS;
-"!"				return NOT;
-"=="			return EQ;
-">="			return GEQ;
-"<="			return LEQ;
-"!="			return NEQ;
-"+"				return PLUS;
-"-"				return MINUS;
-"*"				return MUL;
-"/"				return DIV;
-"&&"			return AND;
-"||"			return OR;
-"%"				return MOD;
+"break"			  TOKEN(BREAK); return BREAK;
+"class"			  TOKEN(CLASS); return CLASS;
+"continue"		  TOKEN(CONTINUE); return CONTINUE;
+"else"			  TOKEN(ELSE); return ELSE;
+"extends"		  TOKEN(EXTENDS); return EXTENDS;
+"if"			  TOKEN(IF); return IF;
+"new"			  TOKEN(NEW); return NEW;
+"private"		  TOKEN(PRIVATE); return PRIVATE;
+"protected"		  TOKEN(PROTECTED); return PROTECTED;
+"public"		  TOKEN(PUBLIC); return PUBLIC;
+"return"		  TOKEN(RETURN); return RETURN;
+"static"		  TOKEN(STATIC); return STATIC;
+"super"			  TOKEN(SUPER); return SUPER;
+"this"			  TOKEN(THIS); return THIS;
+"while"			  TOKEN(WHILE); return WHILE;
+"boolean"		  TOKEN(BOOLEAN);  return BOOLEAN;
+"char" 			  TOKEN(CHAR); return CHAR;
+"int" 			  TOKEN(INT); return INT;
+"void"			  TOKEN(VOID); return VOID;
+"("				  TOKEN(LPAREN); return LPAREN;
+")"				  TOKEN(RPAREN); return RPAREN;
+"{"				  TOKEN(LBRACE); return LBRACE;
+"}"				  TOKEN(RBRACE); return RBRACE;
+"["				  TOKEN(LBRACKET); return LBRACKET;
+"]"				  TOKEN(RBRACKET); return RBRACKET;
+");"			  TOKEN(SEMICOLON); return SEMICOLON;
+","				  TOKEN(COMMA); return COMMA;
+"."				  TOKEN(PERIOD); return PERIOD;
+"="				  TOKEN(ASSIGN); return ASSIGN;
+">"				  TOKEN(GREATER); return GREATER;
+"<"				  TOKEN(LESS); return LESS;
+"!"				  TOKEN(NOT); return NOT;
+"=="			  TOKEN(EQ); return EQ;
+">="			  TOKEN(GEQ); return GEQ;
+"<="			  TOKEN(LEQ); return LEQ;
+"!="			  TOKEN(NEQ); return NEQ;
+"+"				  TOKEN(PLUS); return PLUS;
+"-"				  TOKEN(MINUS); return MINUS;
+"*"				  TOKEN(MUL); return MUL;
+"/"				  TOKEN(DIV); return DIV;
+"&&"			  TOKEN(AND); return AND;
+"||"			  TOKEN(OR); return OR;
+"%"				  TOKEN(MOD); return MOD;
 
 
 "true"|"false"	{
-					yylval.sVal = strdup(yytext);
+					TOKEN(BOOLEAN_LITERAL);
 					return BOOLEAN_LITERAL;
 				}
 
@@ -111,23 +120,22 @@ int commentStart;
 "float"			yyerror("Forbidden word");
 
 {idsC}{idC}*	{	
-					yylval.sVal = strdup(yytext);
-                	cout << "In Lexer" << yytext << endl;
-                	return IDENTIFIER;
+					TOKEN(IDENTIFIER)
+			    	return IDENTIFIER;
                 }
                 
 [0-9]+			{
-					yylval.iVal = atoi(yytext);
+					TOKEN(INTEGER);
 					return INTEGER;
 				}
 
 {dimension}				{
-							yylval.sVal = strdup(yytext);
+							TOKEN(DIM);
 							return DIM;
 						}
 
 \'([^\'\n\\]|(\\.))\'   	{
-								yylval.sVal = strdup(yytext);
+								TOKEN(CHARACTER);
   								return CHARACTER;
 							}
 
@@ -137,7 +145,7 @@ int commentStart;
  							
  							
 \"((\\.)|[^\\"])*\"		{
-								yylval.sVal = strdup(yytext);
+								TOKEN(STRING);
 								return STRING;
 							} 							
 

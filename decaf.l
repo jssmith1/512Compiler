@@ -64,7 +64,7 @@ int commentStart;
 
 
 "true"|"false"	{
-					yylval.sVal = yytext;
+					yylval.sVal = strdup(yytext);
 					return BOOLEAN_LITERAL;
 				}
 
@@ -111,7 +111,8 @@ int commentStart;
 "float"			yyerror("Forbidden word");
 
 {idsC}{idC}*	{	
-					yylval.sVal = yytext;
+					yylval.sVal = strdup(yytext);
+                	cout << "In Lexer" << yytext << endl;
                 	return IDENTIFIER;
                 }
                 
@@ -121,12 +122,12 @@ int commentStart;
 				}
 
 {dimension}				{
-							yylval.sVal=yytext;
+							yylval.sVal = strdup(yytext);
 							return DIM;
 						}
 
 \'([^\'\n\\]|(\\.))\'   	{
-								yylval.sVal = yytext;
+								yylval.sVal = strdup(yytext);
   								return CHARACTER;
 							}
 
@@ -136,7 +137,7 @@ int commentStart;
  							
  							
 \"((\\.)|[^\\"])*\"		{
-								yylval.sVal = yytext;
+								yylval.sVal = strdup(yytext);
 								return STRING;
 							} 							
 

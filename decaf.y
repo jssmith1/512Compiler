@@ -25,7 +25,7 @@ extern Token * curTok;
 %token <tokPtr> IDENTIFIER CHARACTER STRING BOOLEAN_LITERAL DIM
 %token <tokPtr> INTEGER
 
-%type <treePtr> Start Classes Class Members
+%type <treePtr> Start Classes Class Members Super Member Field Method Ctor
 
 
 %token-table
@@ -75,30 +75,37 @@ Classes:
 ;
 
 Class:
-		CLASS IDENTIFIER Super LBRACE Members RBRACE		{}							
+		CLASS IDENTIFIER Super LBRACE Members RBRACE		{$$ = new ParseTree("class");
+															$$->addChild(new ParseTree($1)); //Starting Line
+															$$->addChild(new ParseTree($2)); //Super	
+															$$->addChild($5); //Members
+		
+		
+															}							
 |		CLASS IDENTIFIER LBRACE Members RBRACE				{$$ = new ParseTree("class");
-															//cout << $1->type << endl;
-															//$$->addChild($2); //class name	
+															$$->addChild(new ParseTree($1)); //Starting Line
+															$$->addChild(new ParseTree($2)); //class name	
 															$$->addChild($4); //Members
-																//cout << "here" << endl;
-																//(curTok->type==RBRACE)? cout << "True": cout << "False";
 															}
 ;
 
 
 Super:
-		EXTENDS IDENTIFIER					{}							
+		EXTENDS IDENTIFIER					{$$ = new ParseTree("super");
+											$$->addChild(new ParseTree($2));
+											}							
 
 
 Members:
-%empty							{}
-|		Members Member			{}
+%empty							{$$ = new ParseTree("members");}
+|		Members Member			{$1-> addChild($2);
+								$$=$1;}
 ;
 
 Member:
-		Field					{}
-|		Method					{}
-|		Ctor					{}
+		Field					{$$ = $1;}
+|		Method					{$$ = $1;}
+|		Ctor					{$$ = $1;}
 ;
 
 Field:

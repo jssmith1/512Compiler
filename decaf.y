@@ -24,6 +24,7 @@ using namespace std;
 int yylex();
 int yyerror(const char * s);
 
+extern ParseTree * top;
 extern Token * curTok;
 
 %}
@@ -51,20 +52,27 @@ extern Token * curTok;
 %%
 
 Start: 
-		Classes						{}		
+		Classes						{top = $$ = $1;}		
 ;
 
 Classes:
-		Class						{}
-|		Classes Class				{}
+		Class						{$$ = new ParseTree("classes");
+									$$ -> addChild($1);}
+|		Classes Class				{$1 -> addChild($2);
+									$$=$1;}
 ;
 
 Class:
 		CLASS IDENTIFIER Super LBRACE Members RBRACE		{}							
-|		CLASS IDENTIFIER LBRACE Members RBRACE				{	cout << "here" << endl;
-																(curTok->type==RBRACE)? cout << "True": cout << "False";
+|		CLASS IDENTIFIER LBRACE Members RBRACE				{$$ = new ParseTree("class");
+															//cout << $1->type << endl;
+															$$->addChild($2); //class name	
+															$$->addChild($4); //Members
+																//cout << "here" << endl;
+																//(curTok->type==RBRACE)? cout << "True": cout << "False";
 															}
 ;
+
 
 Super:
 		EXTENDS IDENTIFIER					{}							

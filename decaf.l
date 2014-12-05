@@ -1,3 +1,22 @@
+%{
+#define TOKEN(t) (curTok = new Token(t, strdup(yytext), yylineno));
+
+
+#include "tokenType.h"
+#include "parsetree.h"
+
+#include "decaf.tab.h"
+#include <iostream>
+
+using namespace std;
+int yyerror(const char * s);
+int commentStart;
+
+
+Token * curTok;
+%} 
+
+
 idC [$0-9a-zA-Z_]
 idsC [$a-zA-Z_]
 space [ \n\t\r]
@@ -6,74 +25,59 @@ dimension ("["{space}*"]"{space}*)+
 %x COMMENT
 %option yylineno
 
-%{
-#define TOKEN(t) (curTok = new Token(t, strdup(yytext), yylineno));
-
-
-#include "decaf.tab.h"
-#include <iostream>
-#include "tokenType.h"
-using namespace std;
-int yyerror(const char * s);
-int commentStart;
-
-
-
-Token * curTok;
-%} 
 
 %%
-"break"			  TOKEN(BREAK); return BREAK;
-"class"			  TOKEN(CLASS); return CLASS;
-"continue"		  TOKEN(CONTINUE); return CONTINUE;
-"else"			  TOKEN(ELSE); return ELSE;
-"extends"		  TOKEN(EXTENDS); return EXTENDS;
-"if"			  TOKEN(IF); return IF;
-"new"			  TOKEN(NEW); return NEW;
-"private"		  TOKEN(PRIVATE); return PRIVATE;
-"protected"		  TOKEN(PROTECTED); return PROTECTED;
-"public"		  TOKEN(PUBLIC); return PUBLIC;
-"return"		  TOKEN(RETURN); return RETURN;
-"static"		  TOKEN(STATIC); return STATIC;
-"super"			  TOKEN(SUPER); return SUPER;
-"this"			  TOKEN(THIS); return THIS;
-"while"			  TOKEN(WHILE); return WHILE;
-"boolean"		  TOKEN(BOOLEAN);  return BOOLEAN;
-"char" 			  TOKEN(CHAR); return CHAR;
-"int" 			  TOKEN(INT); return INT;
-"void"			  TOKEN(VOID); return VOID;
-"("				  TOKEN(LPAREN); return LPAREN;
-")"				  TOKEN(RPAREN); return RPAREN;
-"{"				  TOKEN(LBRACE); return LBRACE;
-"}"				  TOKEN(RBRACE); return RBRACE;
-"["				  TOKEN(LBRACKET); return LBRACKET;
-"]"				  TOKEN(RBRACKET); return RBRACKET;
-");"			  TOKEN(SEMICOLON); return SEMICOLON;
-","				  TOKEN(COMMA); return COMMA;
-"."				  TOKEN(PERIOD); return PERIOD;
-"="				  TOKEN(ASSIGN); return ASSIGN;
-">"				  TOKEN(GREATER); return GREATER;
-"<"				  TOKEN(LESS); return LESS;
-"!"				  TOKEN(NOT); return NOT;
-"=="			  TOKEN(EQ); return EQ;
-">="			  TOKEN(GEQ); return GEQ;
-"<="			  TOKEN(LEQ); return LEQ;
-"!="			  TOKEN(NEQ); return NEQ;
-"+"				  TOKEN(PLUS); return PLUS;
-"-"				  TOKEN(MINUS); return MINUS;
-"*"				  TOKEN(MUL); return MUL;
-"/"				  TOKEN(DIV); return DIV;
-"&&"			  TOKEN(AND); return AND;
-"||"			  TOKEN(OR); return OR;
-"%"				  TOKEN(MOD); return MOD;
+"break"			  TOKEN(BREAK); yylval.tokPtr = curTok; return BREAK;
+"class"			  TOKEN(CLASS); yylval.tokPtr = curTok; return CLASS;
+"continue"		  TOKEN(CONTINUE); yylval.tokPtr = curTok; return CONTINUE;
+"else"			  TOKEN(ELSE); yylval.tokPtr = curTok; return ELSE;
+"extends"		  TOKEN(EXTENDS); yylval.tokPtr = curTok; return EXTENDS;
+"if"			  TOKEN(IF); yylval.tokPtr = curTok; return IF;
+"new"			  TOKEN(NEW); yylval.tokPtr = curTok; return NEW;
+"private"		  TOKEN(PRIVATE); yylval.tokPtr = curTok; return PRIVATE;
+"protected"		  TOKEN(PROTECTED); yylval.tokPtr = curTok; return PROTECTED;
+"public"		  TOKEN(PUBLIC); yylval.tokPtr = curTok; return PUBLIC;
+"return"		  TOKEN(RETURN); yylval.tokPtr = curTok; return RETURN;
+"static"		  TOKEN(STATIC); yylval.tokPtr = curTok; return STATIC;
+"super"			  TOKEN(SUPER); yylval.tokPtr = curTok; return SUPER;
+"this"			  TOKEN(THIS); yylval.tokPtr = curTok; return THIS;
+"while"			  TOKEN(WHILE); yylval.tokPtr = curTok; return WHILE;
+"boolean"		  TOKEN(BOOLEAN);  yylval.tokPtr = curTok; return BOOLEAN;
+"char" 			  TOKEN(CHAR); yylval.tokPtr = curTok; return CHAR;
+"int" 			  TOKEN(INT); yylval.tokPtr = curTok; return INT;
+"void"			  TOKEN(VOID); yylval.tokPtr = curTok; return VOID;
+"("				  TOKEN(LPAREN); yylval.tokPtr = curTok; return LPAREN;
+")"				  TOKEN(RPAREN); yylval.tokPtr = curTok; return RPAREN;
+"{"				  TOKEN(LBRACE); yylval.tokPtr = curTok; return LBRACE;
+"}"				  TOKEN(RBRACE); yylval.tokPtr = curTok; return RBRACE;
+"["				  TOKEN(LBRACKET); yylval.tokPtr = curTok; return LBRACKET;
+"]"				  TOKEN(RBRACKET); yylval.tokPtr = curTok; return RBRACKET;
+");"			  TOKEN(SEMICOLON); yylval.tokPtr = curTok; return SEMICOLON;
+","				  TOKEN(COMMA); yylval.tokPtr = curTok; return COMMA;
+"."				  TOKEN(PERIOD); yylval.tokPtr = curTok; return PERIOD;
+"="				  TOKEN(ASSIGN); yylval.tokPtr = curTok; return ASSIGN;
+">"				  TOKEN(GREATER); yylval.tokPtr = curTok; return GREATER;
+"<"				  TOKEN(LESS); yylval.tokPtr = curTok; return LESS;
+"!"				  TOKEN(NOT); yylval.tokPtr = curTok; return NOT;
+"=="			  TOKEN(EQ); yylval.tokPtr = curTok; return EQ;
+">="			  TOKEN(GEQ); yylval.tokPtr = curTok; return GEQ;
+"<="			  TOKEN(LEQ); yylval.tokPtr = curTok; return LEQ;
+"!="			  TOKEN(NEQ); yylval.tokPtr = curTok; return NEQ;
+"+"				  TOKEN(PLUS); yylval.tokPtr = curTok; return PLUS;
+"-"				  TOKEN(MINUS); yylval.tokPtr = curTok; return MINUS;
+"*"				  TOKEN(MUL); yylval.tokPtr = curTok; return MUL;
+"/"				  TOKEN(DIV); yylval.tokPtr = curTok; return DIV;
+"&&"			  TOKEN(AND); yylval.tokPtr = curTok; return AND;
+"||"			  TOKEN(OR); yylval.tokPtr = curTok; return OR;
+"%"				  TOKEN(MOD); yylval.tokPtr = curTok; return MOD;
 
 
 "true"|"false"	{
 					TOKEN(BOOLEAN_LITERAL);
-					return BOOLEAN_LITERAL;
+					yylval.tokPtr = curTok; return BOOLEAN_LITERAL;
 				}
 
-"null"			return DECAF_NULL;
+"null"			TOKEN(DECAF_NULL); yylval.tokPtr = curTok; return DECAF_NULL;
 
 "abstract"		yyerror("Reserved word");
 "byte"			yyerror("Reserved word");
@@ -117,22 +121,22 @@ Token * curTok;
 
 {idsC}{idC}*	{	
 					TOKEN(IDENTIFIER)
-			    	return IDENTIFIER;
+			    	yylval.tokPtr = curTok; return IDENTIFIER;
                 }
                 
 [0-9]+			{
 					TOKEN(INTEGER);
-					return INTEGER;
+					yylval.tokPtr = curTok; return INTEGER;
 				}
 
 {dimension}				{
 							TOKEN(DIM);
-							return DIM;
+							yylval.tokPtr = curTok; return DIM;
 						}
 
 \'([^\'\n\\]|(\\.))\'   	{
 								TOKEN(CHARACTER);
-  								return CHARACTER;
+  								yylval.tokPtr = curTok; return CHARACTER;
 							}
 
  \'([^\'\n\\]|(\\.))[\n]	{
@@ -142,7 +146,7 @@ Token * curTok;
  							
 \"((\\.)|[^\\"])*\"		{
 								TOKEN(STRING);
-								return STRING;
+								yylval.tokPtr = curTok; return STRING;
 							} 							
 
 \"((\\.)|[^\\"])*[\n]		{

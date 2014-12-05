@@ -1,3 +1,6 @@
+#ifndef PARSETREE
+#define PARSETREE
+
 #include <vector>
 #include <stack>
 
@@ -10,7 +13,7 @@
 #include <iostream>
 
 #include "tokenType.h"
-#include "decaf.tab.h"
+//#include "decaf.tab.h"
 
   /* we are building parse trees */
 
@@ -40,3 +43,4 @@ struct ParseTree {
 void traverseTree(ParseTree * tree, int depth, int seq);
 
 
+#endif

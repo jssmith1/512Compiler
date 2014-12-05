@@ -1,10 +1,10 @@
-#ifndef SCANNER
-#define SCANNER
+#ifndef TOKENTYPE
+#define TOKENTYPE
 
 
 #include <iostream>
 #include <cstdlib>
-#include "decaf.tab.h"
+//#include "decaf.tab.h"
 using namespace std;
 
 extern const char * const* token_table;

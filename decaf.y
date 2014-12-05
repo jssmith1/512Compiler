@@ -1,23 +1,12 @@
-%token BREAK CLASS CONTINUE ELSE EXTENDS IF NEW PRIVATE PROTECTED PUBLIC RETURN STATIC SUPER THIS WHILE BOOLEAN CHAR INT VOID DECAF_NULL
-%token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET SEMICOLON COMMA PERIOD ASSIGN GREATER LESS NOT EQ GEQ LEQ NEQ PLUS MINUS MUL DIV AND OR MOD
-%token IDENTIFIER CHARACTER STRING BOOLEAN_LITERAL DIM
-%token INTEGER
-
-
-%define api.value.type {struct ParseTree *}
-
-
-%token-table
-%locations
 %{
+#include "parsetree.h"
+#include "tokenType.h"
 
 #include <cstdlib>
 #include <cstdio>
 #include <iostream>
 #include <stdio.h>
 #include <string.h>
-#include "tokenType.h"
-#include "parsetree.h"
 
 using namespace std;
 
@@ -27,7 +16,24 @@ int yyerror(const char * s);
 extern ParseTree * top;
 extern Token * curTok;
 
+
+
 %}
+
+%token <tokPtr> BREAK CLASS CONTINUE ELSE EXTENDS IF NEW PRIVATE PROTECTED PUBLIC RETURN STATIC SUPER THIS WHILE BOOLEAN CHAR INT VOID DECAF_NULL
+%token <tokPtr> LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET SEMICOLON COMMA PERIOD ASSIGN GREATER LESS NOT EQ GEQ LEQ NEQ PLUS MINUS MUL DIV AND OR MOD
+%token <tokPtr> IDENTIFIER CHARACTER STRING BOOLEAN_LITERAL DIM
+%token <tokPtr> INTEGER
+
+%type <treePtr> Start Classes Class Members
+
+
+%token-table
+%locations
+%code requires {
+
+				}
+
 
 %right ASSIGN
 %left OR
@@ -48,8 +54,14 @@ extern Token * curTok;
 %precedence ELSE
 
 
+%union { 
+ Token * tokPtr; /* Token Pointer*/ 
+ ParseTree * treePtr; /* Parse Tree Pointer*/ 
+} 
+
 
 %%
+
 
 Start: 
 		Classes						{top = $$ = $1;}		
@@ -66,7 +78,7 @@ Class:
 		CLASS IDENTIFIER Super LBRACE Members RBRACE		{}							
 |		CLASS IDENTIFIER LBRACE Members RBRACE				{$$ = new ParseTree("class");
 															//cout << $1->type << endl;
-															$$->addChild($2); //class name	
+															//$$->addChild($2); //class name	
 															$$->addChild($4); //Members
 																//cout << "here" << endl;
 																//(curTok->type==RBRACE)? cout << "True": cout << "False";

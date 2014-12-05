@@ -46,3 +46,5 @@ decaf.output
 decaf.tab.*
 lex.yy.*
 decaf.o
+parsetree.o
+semantics.o

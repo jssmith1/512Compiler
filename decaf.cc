@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <fstream>
+#include "semantics.h"
 using namespace std;
 
 //Parsing and lexing functions parse calls lex
@@ -8,7 +9,7 @@ using namespace std;
 extern int yylex(void);
 extern int yyparse(void);
 extern FILE * yyin;
-extern const char ** token_table;
+extern const char * const* token_table;
 
 
 void testLex(){

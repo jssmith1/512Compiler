@@ -9,10 +9,6 @@ dimension ("["{space}*"]"{space}*)+
 %{
 #define TOKEN(t) (curTok = new Token(t, strdup(yytext), yylineno));
 
-#ifndef YYSTYPE
-#define YYSTYPE char*
-#endif
-
 
 #include "decaf.tab.h"
 #include <iostream>

@@ -4,13 +4,12 @@
 %token INTEGER
 
 
+%define api.value.type {struct ParseTree *}
+
+
 %token-table
 %locations
 %{
-#ifndef YYSTYPE
-#define YYSTYPE char*
-#endif
-
 
 #include <cstdlib>
 #include <cstdio>
@@ -18,8 +17,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "tokenType.h"
-
-#define YYDEBUG 1
+#include "parsetree.h"
 
 using namespace std;
 
@@ -27,6 +25,7 @@ int yylex();
 int yyerror(const char * s);
 
 extern Token * curTok;
+
 %}
 
 %right ASSIGN

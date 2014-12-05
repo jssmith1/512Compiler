@@ -25,8 +25,9 @@ extern Token * curTok;
 %token <tokPtr> IDENTIFIER CHARACTER STRING BOOLEAN_LITERAL DIM
 %token <tokPtr> INTEGER
 
-%type <treePtr> Start Classes Class Members Super Member Field Method Ctor
-
+%type <treePtr> Start Classes Class Members Super Member Field Method Ctor Modifiers Modifier FormalArgs FormalArgList 
+%type <treePtr> FormalArg Type BracketLst PrimitiveType VarDeclaratorList VarDeclarator VarDeclaratorId Block Statements 
+%type <treePtr> Statement Expression Primary NewArrayExpr Dimensions Dimension NonNewArrayExpr FieldExpr ArrayExpr Literal ActualArgs ExprList
 
 %token-table
 %locations
@@ -109,63 +110,90 @@ Member:
 ;
 
 Field:
-		Modifiers Type VarDeclaratorList SEMICOLON			{}
+		Modifiers Type VarDeclaratorList SEMICOLON			{$$ = new ParseTree("field");
+															$$->addChild($1);
+															$$->addChild($2);
+															$$->addChild($3);
+															}
 ;
 
 Method:
-		Modifiers Type IDENTIFIER FormalArgs Block			{}
+		Modifiers Type IDENTIFIER FormalArgs Block			{$$ = new ParseTree("method");
+															$$->addChild($1);
+															$$->addChild($2);
+															$$->addChild(new ParseTree($3));
+															$$->addChild($4);
+															$$->addChild($5);
+															}
 ;
 
 Ctor:
-		Modifiers IDENTIFIER FormalArgs	Block				{}
+		Modifiers IDENTIFIER FormalArgs	Block				{$$ = new ParseTree("ctor");
+															$$->addChild($1);
+															$$->addChild(new ParseTree($2));
+															$$->addChild($3);
+															$$->addChild($4);
+															}
 ;
 
 Modifiers:
-%empty								{}
-|		Modifiers Modifier 		{}
+%empty								{$$ = new ParseTree("modifiers");}
+|		Modifiers Modifier 			{$1->addChild($2);
+									$$=$1;}
 ;
 
 Modifier:
-		STATIC				{}
-|		PUBLIC				{}
-|		PRIVATE				{}
-|		PROTECTED			{}
+		STATIC				{$$ = new ParseTree($1);}
+|		PUBLIC				{$$ = new ParseTree($1);}
+|		PRIVATE				{$$ = new ParseTree($1);}
+|		PROTECTED			{$$ = new ParseTree($1);}
 ;		
 
 FormalArgs:
-		LPAREN FormalArgList RPAREN			{}
-|		LPAREN RPAREN						{}
+		LPAREN FormalArgList RPAREN			{$$ = $2;}
+|		LPAREN RPAREN						{$$ = new ParseTree("formalArgList");}
 ;
 
 FormalArgList:
-		FormalArg							{}
-|		FormalArgList COMMA FormalArg		{}
+		FormalArg							{$$ = new ParseTree("formalArgList");
+											$$->addChild($1);}
+|		FormalArgList COMMA FormalArg		{$1->addChild($3);
+											$$=$1;}
 ;
 
 FormalArg:
-		Type VarDeclaratorId				{}
+		Type VarDeclaratorId				{$$ = new ParseTree("formalArg");
+											$$->addChild($1);
+											$$->addChild($2);}
 ;
 
 Type:
-		PrimitiveType BracketLst			{}
-|		IDENTIFIER	BracketLst				{}
+		PrimitiveType BracketLst			{$$ = new ParseTree("type"); //If you have a bracketLst, you have an array
+											$$->addChild($1); 			
+											if ($2) $$->addChild($2);}			
+|		IDENTIFIER	BracketLst				{$$ = new ParseTree("type");
+											$$->addChild(new ParseTree($1));
+											if ($2) $$->addChild($2);}
 ;
 
 BracketLst:
-%empty										{}
-|		BracketLst DIM		{}
+%empty							{$$ = NULL;}
+|		DIM						{$$ = new ParseTree($1);}
+								
 ;
 
 PrimitiveType:
-		BOOLEAN					{}
-|		CHAR					{}
-|		INT						{}
-|		VOID					{}
+		BOOLEAN					{$$ = new ParseTree($1);}
+|		CHAR					{$$ = new ParseTree($1);}
+|		INT						{$$ = new ParseTree($1);}
+|		VOID					{$$ = new ParseTree($1);}
 ;
 
 VarDeclaratorList:
-		VarDeclarator								{}
-|		VarDeclaratorList COMMA VarDeclarator		{}
+		VarDeclarator								{$$ = new ParseTree("varDecLst");
+													$$->addChild($1);}
+|		VarDeclaratorList COMMA VarDeclarator		{$1->addChild($3);
+													$$ = $1;}
 ;
 
 VarDeclarator:

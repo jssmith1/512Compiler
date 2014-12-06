@@ -44,12 +44,6 @@ struct S_function : public semantics {
   bool global;
 };
 
-struct S_interface : public semantics {
-  virtual string kind() { return "S_interface"; }
-  vector<S_function *> functions;
-  //string name;  /// curious:  does this override?
-};
-
 struct S_class : public semantics {
   virtual string kind() { return "S_class"; }
   S_class * parentClass;  // extends 

@@ -11,6 +11,12 @@ extern int yyparse(void);
 extern FILE * yyin;
 extern const char * const* token_table;
 
+void pass1(ParseTree * tree)
+{
+  if (!tree) return;
+  if (tree->type==TERMINAL) return;
+}
+
 
 void testLex(){
 	int tok;
@@ -37,6 +43,7 @@ int main(int argc, char **argv){
 	//testLex();
 	yyparse();
 	traverseTree(top,0,0);
+	pass1(top);
 }
 
 

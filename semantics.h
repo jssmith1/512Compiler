@@ -20,6 +20,7 @@ struct S_class;
 struct S_type : public semantics {
   virtual string kind() { return "S_type"; }
   string name; // usually a decaf symbol, but sometimes 
+  int dimension;
   // campbell's funky idea for types.  FIXME.
   // S_type's name can't be void.
 };
@@ -34,7 +35,6 @@ struct S_variable : public semantics {
   int sequenceNumber;
   bool formal;
   S_class * parentClass;
-  bool global;
 };
 
 struct S_function : public semantics {
@@ -47,7 +47,6 @@ struct S_function : public semantics {
 struct S_class : public semantics {
   virtual string kind() { return "S_class"; }
   S_class * parentClass;  // extends 
-  vector<S_interface *> interfaces;
   vector<semantics *> fields;  // have to be S_function or S_variable
 };
 

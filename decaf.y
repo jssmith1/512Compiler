@@ -16,6 +16,13 @@ int yyerror(const char * s);
 extern ParseTree * top;
 extern Token * curTok;
 
+ParseTree * buildBopTree(Token * op, ParseTree * one, ParseTree * four){
+          ParseTree * temp = new ParseTree("expr");
+          temp->addChild(new ParseTree(op));
+          temp->addChild(one);
+          temp->addChild(four);
+          return temp;
+} 
 
 
 %}
@@ -197,115 +204,182 @@ VarDeclaratorList:
 ;
 
 VarDeclarator:
-		VarDeclaratorId						{}
-|		VarDeclaratorId ASSIGN Expression
+		VarDeclaratorId							{$$ = new ParseTree("varDec");
+												$$->addChild($1);}
+|		VarDeclaratorId ASSIGN Expression		{$$ = new ParseTree("varDec");
+												$$->addChild($1);
+												$$->addChild($3);}
 ;
 
 VarDeclaratorId:
-		IDENTIFIER	BracketLst					{}
+		IDENTIFIER	BracketLst					{$$ = new ParseTree("varDecId");
+												$$->addChild(new ParseTree($1));
+												if ($2) $$->addChild($2);}
 ;
 
 Block:
-		LBRACE Statements RBRACE				{}
+		LBRACE Statements RBRACE				{$$ = $2;}
 ;
 
 Statements:
-%empty									{}
-|		Statements Statement			{}
+%empty									{$$ = new ParseTree("statements");}
+|		Statements Statement			{$1->addChild($2);
+										$$ = $1;}
 
 Statement:
-		SEMICOLON													{}
-|		Type VarDeclaratorList SEMICOLON							{}
-|		IF LPAREN Expression RPAREN Statement %prec IFX						{}
-|		IF LPAREN Expression RPAREN Statement ELSE Statement		{}
-|		Expression SEMICOLON										{}
-|		WHILE LPAREN RPAREN Statement								{}
-|		RETURN Expression SEMICOLON									{}
-|		RETURN	SEMICOLON											{}
-|		CONTINUE SEMICOLON											{}
-|		BREAK SEMICOLON												{}
-|		Block														{}
+		SEMICOLON													{$$ = new ParseTree("blankStmt");
+																	$$->addChild(new ParseTree($1));}
+|		Type VarDeclaratorList SEMICOLON							{$$ = new ParseTree("declStmt");
+																	$$->addChild($1);
+																	$$->addChild($2);
+																	}
+|		IF LPAREN Expression RPAREN Statement %prec IFX				{$$ = new ParseTree("ifStmt");
+																	$$->addChild($3);
+																	$$->addChild($5);
+																	}
+|		IF LPAREN Expression RPAREN Statement ELSE Statement		{$$ = new ParseTree("ifStmt");
+																	$$->addChild($3);
+																	$$->addChild($5);
+																	$$->addChild($7);}
+|		Expression SEMICOLON										{$$ = new ParseTree("exprStmt");
+																	$$->addChild($1);}
+|		WHILE LPAREN Expression RPAREN Statement					{$$ = new ParseTree("whileStmt");
+																	 $$->addChild($3);
+																	 $$->addChild($5);}
+|		RETURN Expression SEMICOLON									{$$ = new ParseTree("returnStmt");
+																	$$ -> addChild(new ParseTree($1));
+																	$$ -> addChild($2);}
+|		RETURN	SEMICOLON											{$$ = new ParseTree("returnStmt");
+																	$$ -> addChild(new ParseTree($1));
+																	}
+|		CONTINUE SEMICOLON											{$$ = new ParseTree("contStmt");
+				 													$$->addChild(new ParseTree($1));
+																	}
+|		BREAK SEMICOLON												{$$ = new ParseTree("breakStmt");
+																	$$->addChild(new ParseTree($1));}
+|		Block														{$$ = new ParseTree("blockStmt");
+																	$$->addChild($1);} 
 ;
 
 Expression:
-		Expression ASSIGN Expression			{}
-|		Expression OR Expression				{}		
-|		Expression AND Expression				{}		
-|		Expression EQ Expression				{}		
-|		Expression NEQ Expression				{}		
-|		Expression LESS Expression				{}		
-|		Expression GREATER Expression			{}		
-|		Expression LEQ Expression				{}		
-|		Expression GEQ Expression				{}		
-|		Expression PLUS Expression				{}		
-|		Expression MINUS Expression				{}		
-|		Expression MUL Expression				{}		
-|		Expression DIV Expression				{}		
-|		Expression MOD Expression				{}		
-|		PLUS Expression	%prec UPLUS				{}
-|		MINUS Expression %prec UMINUS			{}
-|		NOT Expression							{}
-|		Primary									{}
+		Expression ASSIGN Expression			{$$ = buildBopTree($2, $1, $3);}
+|		Expression OR Expression				{$$ = buildBopTree($2, $1, $3);}		
+|		Expression AND Expression				{$$ = buildBopTree($2, $1, $3);}		
+|		Expression EQ Expression				{$$ = buildBopTree($2, $1, $3);}		
+|		Expression NEQ Expression				{$$ = buildBopTree($2, $1, $3);}		
+|		Expression LESS Expression				{$$ = buildBopTree($2, $1, $3);}		
+|		Expression GREATER Expression			{$$ = buildBopTree($2, $1, $3);}		
+|		Expression LEQ Expression				{$$ = buildBopTree($2, $1, $3);}		
+|		Expression GEQ Expression				{$$ = buildBopTree($2, $1, $3);}		
+|		Expression PLUS Expression				{$$ = buildBopTree($2, $1, $3);}		
+|		Expression MINUS Expression				{$$ = buildBopTree($2, $1, $3);}		
+|		Expression MUL Expression				{$$ = buildBopTree($2, $1, $3);}		
+|		Expression DIV Expression				{$$ = buildBopTree($2, $1, $3);}		
+|		Expression MOD Expression				{$$ = buildBopTree($2, $1, $3);}		
+|		PLUS Expression	%prec UPLUS				{$$ = new ParseTree("expr");
+												$$->addChild(new ParseTree($1));
+												$$->addChild($2);}
+|		MINUS Expression %prec UMINUS			{$$ = new ParseTree("expr");
+												$$->addChild(new ParseTree($1));
+												$$->addChild($2);}
+|		NOT Expression							{$$ = new ParseTree("expr");
+												$$->addChild(new ParseTree($1));
+												$$->addChild($2);}
+|		Primary									{$$ = new ParseTree("expr");
+												$$ -> addChild($1);}
 ;
 
 Primary:
-		NewArrayExpr			{}
-|		NonNewArrayExpr			{}
-|		IDENTIFIER				{}
+		NewArrayExpr				{$$ = new ParseTree("Primary");
+									$$->addChild($1);}
+|		NonNewArrayExpr				{$$ = new ParseTree("Primary");
+									$$->addChild($1);}
+|		IDENTIFIER					{$$ = new ParseTree("Primary");
+									$$->addChild(new ParseTree($1));}
 ;
 
 NewArrayExpr:
-		NEW IDENTIFIER Dimensions				{}
-|		NEW PrimitiveType Dimensions			{}
+		NEW IDENTIFIER Dimensions				{$$ = new ParseTree("newAryExp");
+												$$->addChild(new ParseTree($2));
+												$$->addChild($3);}
+|		NEW PrimitiveType Dimensions			{$$ = new ParseTree("newAryExp");
+												$$->addChild($2);
+												$$->addChild($3);}
+
 ;
 
 Dimensions:
-		Dimension					{}
-|		Dimensions Dimension		{}
+		Dimension					{$$ = new ParseTree("dimensions");
+									$$ -> addChild($1);}
+|		Dimensions Dimension		{$1->addChild($2);
+									$$ = $1;}
 ;
 
 Dimension:
-		LBRACKET Expression RBRACKET		{}
+		LBRACKET Expression RBRACKET		{$$ = new ParseTree("dimension");
+											$$->addChild($2);}
 ;
 
 NonNewArrayExpr:
-		Literal									{}
-|		THIS									{}
-|		LPAREN Expression RPAREN				{}
-|		NEW IDENTIFIER ActualArgs				{}
-|		IDENTIFIER ActualArgs					{}
-|		Primary PERIOD IDENTIFIER ActualArgs	{}
-|		SUPER PERIOD IDENTIFIER ActualArgs		{}
-|		ArrayExpr								{}
-|		FieldExpr								{}
+		Literal									{$$ = new ParseTree("literal_expr");
+												 $$->addChild($1);}
+|		THIS									{$$ = new ParseTree("this_expr");
+												$$->addChild(new ParseTree($1));}
+|		LPAREN Expression RPAREN				{$$ = $2;}
+|		NEW IDENTIFIER ActualArgs				{$$ = new ParseTree("newObj_expr");
+												$$->addChild(new ParseTree($2));
+												$$->addChild($3);}
+|		IDENTIFIER ActualArgs					{$$ = new ParseTree("call_expr");
+												$$->addChild(new ParseTree($1));
+												$$->addChild($2);}
+|		Primary PERIOD IDENTIFIER ActualArgs	{$$ = new ParseTree("methodCall_expr");
+												$$->addChild($1);
+												$$->addChild(new ParseTree($3));
+												$$->addChild($4);}
+|		SUPER PERIOD IDENTIFIER ActualArgs		{$$ = new ParseTree("superCall_expr");
+												$$->addChild(new ParseTree($1));
+												$$->addChild(new ParseTree($3));
+												$$->addChild($4);}
+|		ArrayExpr								{$$ = $1;}
+|		FieldExpr								{$$ = $1;}
 ;
 
 FieldExpr: 
-		Primary PERIOD IDENTIFIER				{}
-|		SUPER PERIOD IDENTIFIER					{}
+		Primary PERIOD IDENTIFIER				{$$ = new ParseTree("fieldExpr");
+												$$->addChild($1);
+												$$->addChild(new ParseTree($3));}
+|		SUPER PERIOD IDENTIFIER					{$$ = new ParseTree("fieldExpr");
+												$$->addChild(new ParseTree($1));
+												$$->addChild(new ParseTree($3));}
 ;
 
 ArrayExpr: 
-		IDENTIFIER Dimension					{}
-|		NonNewArrayExpr Dimension				{}
+		IDENTIFIER Dimension					{$$ = new ParseTree("arryExpr");
+												$$->addChild(new ParseTree($1));
+												$$->addChild($2);}
+|		NonNewArrayExpr Dimension				{$$ = new ParseTree("arryExpr");
+												$$->addChild($1);
+												$$->addChild($2);}
 ;
 
 Literal:
-		DECAF_NULL					{}
-|		BOOLEAN_LITERAL				{}
-|		INTEGER						{}
-|		CHARACTER					{}
-|		STRING						{}
+		DECAF_NULL					{$$ = new ParseTree($1);}
+|		BOOLEAN_LITERAL				{$$ = new ParseTree($1);}
+|		INTEGER						{$$ = new ParseTree($1);}
+|		CHARACTER					{$$ = new ParseTree($1);}
+|		STRING						{$$ = new ParseTree($1);}
 ;
 
 ActualArgs:
-		LPAREN ExprList	RPAREN					{}
-|		LPAREN RPAREN							{}
+		LPAREN ExprList	RPAREN					{$$ = $2;}
+|		LPAREN RPAREN							{$$ = new ParseTree("exprList");}
 ;
 
 ExprList:
-		Expression						{}
-|		ExprList COMMA Expression		{}
+		Expression						{$$ = new ParseTree("exprList");
+										$$->addChild($1);}
+|		ExprList COMMA Expression		{$1->addChild($3);
+										$$ = $1;}
 ;
 
 

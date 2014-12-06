@@ -52,7 +52,7 @@ dimension ("["{space}*"]"{space}*)+
 "}"				  TOKEN(RBRACE); yylval.tokPtr = curTok; return RBRACE;
 "["				  TOKEN(LBRACKET); yylval.tokPtr = curTok; return LBRACKET;
 "]"				  TOKEN(RBRACKET); yylval.tokPtr = curTok; return RBRACKET;
-");"			  TOKEN(SEMICOLON); yylval.tokPtr = curTok; return SEMICOLON;
+";"			  TOKEN(SEMICOLON); yylval.tokPtr = curTok; return SEMICOLON;
 ","				  TOKEN(COMMA); yylval.tokPtr = curTok; return COMMA;
 "."				  TOKEN(PERIOD); yylval.tokPtr = curTok; return PERIOD;
 "="				  TOKEN(ASSIGN); yylval.tokPtr = curTok; return ASSIGN;

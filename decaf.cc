@@ -37,11 +37,33 @@ void error_if_defined_locally(ParseTree *tree)
   }
 }
 
+int countBrackets(ParseTree * bracketLst){
+	int count = 0;
+	if(bracketLst){
+		string brackets = bracketLst->token->text;
+		for (size_t i = 0; i < brackets.size(); i++){
+			if (brackets.substr(i, 1) == "[") count++;
+		}
+	}
+	return count;
+}
+
+int get_type_dimension(ParseTree * type, ParseTree * varDecId){
+	int dimension = 0;
+	if (type && (type->children.size() > 1)){
+		assert(type->description == "type");
+		dimension += countBrackets(type->children[1]);
+	}
+	if(varDecId && (varDecId->children.size() > 1)){
+		assert(varDecId->description == "varDecId");
+		dimension += countBrackets(varDecId->children[1]);
+	}
+	return dimension;
+}
 
 string get_type_name(ParseTree * type){
 	assert(type->description == "type");
-	return "FIX ME";
-
+	return type->children[0]->token->text;
 }
 
 S_variable * makeVariable(ParseTree * modifiers, ParseTree * type, ParseTree * varDeclaratorId){
@@ -60,14 +82,14 @@ S_variable * makeVariable(ParseTree * modifiers, ParseTree * type, ParseTree * v
 
 	//Set up the type using type tree
 	entry->type->name = type_name;
-	entry->type->dimension = 0;
-	entry->type->name = type_name;
+	entry->type->dimension = get_type_dimension(type, varDeclaratorId);
 
 	//Set up modifiers too@@@
 	entry->parentClass = currentClass;
 	entry->sequenceNumber = sequenceNumber;
 	sequenceNumber++;
 	currentScope->insert(varName, entry);
+	cout << entry->type->name << " " << entry->ident << endl;
 	return entry;
 }
 
@@ -81,15 +103,12 @@ S_function * makeMethod(ParseTree *tree){
 
 	if (tree->description=="method"){
 		string returnTypeString = get_type_name(tree->children[1]);
-		if (returnTypeString == "void"){ //HOW TO REPRESENT TYPES???
-			entry->returnType = NULL;
-		}
-		else{
-			S_type * returnEntry = new S_type;
-			returnEntry->name = returnTypeString;
-			entry->returnType = returnEntry;
-			//SET UP DIMENSION
-		}
+		S_type * returnEntry = new S_type;
+		returnEntry->name = returnTypeString;
+		returnEntry->dimension = get_type_dimension(tree->children[1], NULL);
+		entry->returnType = returnEntry;
+		//SET UP DIMENSION
+
 	}
 
 	openscope();
@@ -107,7 +126,6 @@ S_function * makeMethod(ParseTree *tree){
 	sequenceNumber = 0;
 	currentScope->insert(ident, entry);
 	return entry;
-	//ADD TO CLASS??
 }
 
 S_class * makeClass(ParseTree * tree){
@@ -118,7 +136,6 @@ S_class * makeClass(ParseTree * tree){
 	entry->ident = ident;
 	currentClass = entry;
 	entry->parentClass = NULL;
-	//MORE HERE
 	if (tree->children.size() > 2){
 		// We explicitly extend a class!
 		string super = tree->children[2]->children[0]->token->text;
@@ -152,13 +169,11 @@ void pass1(ParseTree * tree)
 	  S_function * entry = makeMethod(tree);
 	  entry->ctor = false;
 	  if(currentClass)  currentClass->fields.push_back(entry);
-	  else cout << "METHOD OUTSIDE CLASS LOGIC ERROR" << endl;
   }
   else if (tree->description=="ctor"){
   	  S_function * entry = makeMethod(tree);
   	  entry->ctor = true;
   	  if(currentClass)  currentClass->fields.push_back(entry);
-  	  else cout << "CTOR OUTSIDE CLASS LOGIC ERROR" << endl;
   }
   else if (tree->description=="field"){
 	  //make fields
@@ -168,7 +183,6 @@ void pass1(ParseTree * tree)
 			  entry->sequenceNumber = -1;
 			  currentClass->fields.push_back(entry);
 		  }
-		  else cout << "FIELD OUTSIDE CLASS LOGIC ERROR" << endl;
 	  }
   }
   else if (tree->description=="declStmt"){
@@ -179,8 +193,6 @@ void pass1(ParseTree * tree)
   else if (tree->description=="class"){
 	  S_class * entry = makeClass(tree);
   }
-  //CLASS, COULD SET UP Parent CLASS HERE (PROBABLY SHOULD)
-
   else if (tree->type == NONTERMINAL){
 	  for(size_t i = 0; i < tree->children.size(); i++){
 		  pass1(tree->children[i]);

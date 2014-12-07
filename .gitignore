@@ -49,3 +49,4 @@ decaf.o
 parsetree.o
 semantics.o
 decaf.exe.stackdump
+tmp

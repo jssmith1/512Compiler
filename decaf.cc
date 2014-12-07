@@ -145,7 +145,16 @@ S_class * makeClass(ParseTree * tree){
 		if(tmp->kind() != "S_class") semantic_error("super class " + super + " not a class", line);
 		entry->parentClass = (S_class *) tmp;
 	}
-	else {}//WE EXTEND OBJECT LOOK IT UP
+	else {
+		if(ident != "Object"){
+			cout << "Object is a parent of " << ident << endl;
+			int line = tree->children[0]->token->line;
+			semantics * tmp = currentScope->lookup("Object");
+			if(!tmp) semantic_error("Couldn't find object -- logic error", line);
+			if(tmp->kind() != "S_class") semantic_error("Object not a class, logic error", line);
+			entry->parentClass = (S_class *) tmp;
+		}
+	}//WE EXTEND OBJECT LOOK IT UP
 	openscope();
 	pass1(tree->children[1]);
 	tree->symtab = closescope();
@@ -216,20 +225,36 @@ int main(int argc, char **argv){
 		cout << "USAGE: " << argv[0] << " FILE" << endl;
 		exit(1);
 	}
-	//MAYBE CONCAT EXISTING FILES THEN IGNORE IO, OBJ, etc.
-	yyin = fopen(argv[1], "r");
-	/* and that it exists and can be read */
-	if (!yyin) {
-		cout << argv[1] << ": No such file or file can't be opened for reading."
-				<< endl;
+	//CONCAT EXISTING FILES THEN IGNORE IO, OBJ, etc.
+	FILE * lib = fopen("lib.decaf", "r");
+	if (!lib) {
+		cout << "Can't open lib." << endl;
 		exit(1);
 	}
+	FILE * input = fopen(argv[1], "r");
+	if (!input) {
+		cout << argv[1] << ": No such file or file can't be opened for reading." << endl;
+		exit(1);
+	}
+	FILE * tmp = fopen("tmp", "w+");
+
+	char ch;
+	while( ( ch = fgetc(lib) ) != EOF )
+		fputc(ch,tmp);
+	while( ( ch = fgetc(input) ) != EOF )
+		fputc(ch,tmp);
+	fclose(lib);
+	fclose(input);
+	fclose(tmp);
+	yyin = fopen("tmp", "r");
 	//testLex();
 	yyparse();
-	traverseTree(top,0,0);
 	openscope();
-	//put stuff into the scope OBJECT, STRING, IO
 	pass1(top);
+	//Once in symtab, clear the preDefined objects
+	top->children.erase(top->children.begin(), top->children.begin()+3);
+	traverseTree(top,0,0);
+	//	cout << top->children.size() << endl;
 }
 
 

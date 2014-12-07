@@ -41,7 +41,7 @@ struct S_function : public semantics {
   virtual string kind() { return "S_function"; }
   vector<S_variable *> formals;
   S_type * returnType;  // NULL for a void function
-  bool global;
+  bool ctor;
 };
 
 struct S_class : public semantics {

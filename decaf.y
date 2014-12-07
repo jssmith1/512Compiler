@@ -84,14 +84,11 @@ Classes:
 
 Class:
 		CLASS IDENTIFIER Super LBRACE Members RBRACE		{$$ = new ParseTree("class");
-															$$->addChild(new ParseTree($1)); //Starting Line
-															$$->addChild(new ParseTree($2)); //Super	
+															$$->addChild(new ParseTree($2)); //Ident
 															$$->addChild($5); //Members
-		
-		
+															$$->addChild($3); //Super		
 															}							
 |		CLASS IDENTIFIER LBRACE Members RBRACE				{$$ = new ParseTree("class");
-															$$->addChild(new ParseTree($1)); //Starting Line
 															$$->addChild(new ParseTree($2)); //class name	
 															$$->addChild($4); //Members
 															}
@@ -137,6 +134,7 @@ Method:
 Ctor:
 		Modifiers IDENTIFIER FormalArgs	Block				{$$ = new ParseTree("ctor");
 															$$->addChild($1);
+															$$->addChild(new ParseTree("blank"));
 															$$->addChild(new ParseTree($2));
 															$$->addChild($3);
 															$$->addChild($4);

@@ -288,11 +288,11 @@ Expression:
 ;
 
 Primary:
-		NewArrayExpr				{$$ = new ParseTree("Primary");
+		NewArrayExpr				{$$ = new ParseTree("primary");
 									$$->addChild($1);}
-|		NonNewArrayExpr				{$$ = new ParseTree("Primary");
+|		NonNewArrayExpr				{$$ = new ParseTree("primary");
 									$$->addChild($1);}
-|		IDENTIFIER					{$$ = new ParseTree("Primary");
+|		IDENTIFIER					{$$ = new ParseTree("primary");
 									$$->addChild(new ParseTree($1));}
 ;
 

@@ -50,3 +50,4 @@ parsetree.o
 semantics.o
 decaf.exe.stackdump
 tmp
+out.txt

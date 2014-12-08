@@ -14,6 +14,8 @@ extern FILE * yyin;
 extern const char * const* token_table;
 extern Symtab * currentScope;
 
+const int LINESINLIB = 22;
+
 S_class * currentClass = NULL;
 S_function * currentFunction = NULL;
 int sequenceNumber = 1;
@@ -22,7 +24,7 @@ void pass1(ParseTree * tree);
 
 void semantic_error(string err, int line)
 {
-  cout << "Semantic error: " << err << " on line " << line << endl;
+  cout << "Semantic error: " << err << " on line " << line - LINESINLIB << endl;
   exit(1);
 }
 
@@ -33,7 +35,7 @@ void error_if_defined_locally(ParseTree *tree)
   string var_name = tree->token->text;
   int lineno = tree->token->line;
   if (currentScope->local_lookup(var_name)){
-     semantic_error(var_name + " already defined", lineno);
+     semantic_error(var_name + " already defined", lineno - LINESINLIB); //22 fake lines!
   }
 }
 
@@ -85,6 +87,11 @@ S_variable * makeVariable(ParseTree * modifiers, ParseTree * type, ParseTree * v
 	entry->type->dimension = get_type_dimension(type, varDeclaratorId);
 
 	//Set up modifiers too@@@
+	if(modifiers){
+		//We are in field CANNOT BE STATIC and ONLY ONE ACCESS MOD
+
+	}
+
 	entry->parentClass = currentClass;
 	entry->sequenceNumber = sequenceNumber;
 	sequenceNumber++;
@@ -101,14 +108,13 @@ S_function * makeMethod(ParseTree *tree){
 	S_function *entry = new S_function;
 	entry->ident = ident;
 
+	entry->returnType = NULL; //Signal ctor
 	if (tree->description=="method"){
 		string returnTypeString = get_type_name(tree->children[1]);
 		S_type * returnEntry = new S_type;
 		returnEntry->name = returnTypeString;
 		returnEntry->dimension = get_type_dimension(tree->children[1], NULL);
 		entry->returnType = returnEntry;
-		//SET UP DIMENSION
-
 	}
 
 	openscope();
@@ -147,7 +153,6 @@ S_class * makeClass(ParseTree * tree){
 	}
 	else {
 		if(ident != "Object"){
-			cout << "Object is a parent of " << ident << endl;
 			int line = tree->children[0]->token->line;
 			semantics * tmp = currentScope->lookup("Object");
 			if(!tmp) semantic_error("Couldn't find object -- logic error", line);
@@ -209,6 +214,187 @@ void pass1(ParseTree * tree)
   }
 }
 
+void typeCheck(ParseTree * t, Symtab * s);
+
+
+semantics * virtualLookup(string ident, S_class * curClass){
+  if(!curClass) return NULL;
+  for(size_t i = 0; i < curClass->fields.size(); i++){
+    if(curClass->fields[i]->ident == ident) {
+      return curClass->fields[i];
+    }
+  }
+  return virtualLookup(ident, curClass->parentClass);
+}
+
+
+semantics * class_scope_lookup(string id, Symtab * scope, S_class * someClass){
+  //Look up in class structure or in scope
+  //Return the appropriate semantic object
+  semantics * fromClass = virtualLookup(id, someClass);
+  semantics * fromScope = scope->lookup(id);
+  if(fromScope) return fromScope;
+  if(fromClass) return fromClass;
+  return fromScope; //null
+}
+
+bool compatible(string subtype, string supertype, Symtab * tab){
+  if(subtype == supertype) return true;
+  if (subtype == "null"){
+    if(supertype == "null") return true;
+    semantics * supclass = tab->lookup(supertype);
+    if(!supclass) return false;
+    if(supclass->kind() == "S_class"){
+      return true;
+    }
+    return false;
+  }
+  else{
+    semantics * subclass = tab->lookup(subtype);
+    if(!subclass) return false;
+    if(subclass->kind() != "S_class") return false;
+    S_class * sub = (S_class *) subclass;
+    if(!sub->parentClass) return false;
+    return compatible(sub->parentClass->ident, supertype, tab);
+  }
+}
+
+void checkPrimary(ParseTree * tree, Symtab * tab){
+	if(tree->children[0]->type == NONTERMINAL){
+		//DO MORE HERE
+		typeCheck(tree->children[0], tab);
+		tree->s_type = tree->children[0]->s_type;
+		tree->dimension = tree->children[0]->dimension;
+		cout << "Primary Type" << tree->s_type <<endl;
+	}
+	else{//we have a variable identifier
+		//ident
+		assert(tree->children[0]->token->type == IDENTIFIER);
+		string ident = tree->children[0]->token->text;
+		int line = tree->children[0]->token->line;
+		semantics * var = class_scope_lookup(ident, tab, currentClass);
+		if (!var) semantic_error(ident + " not defined", line);
+		if (var->kind() != "S_variable") semantic_error(ident + " not a variable", line);
+		S_variable * temp = (S_variable *) var;
+		tree->s_type = temp->type->name;
+		tree->dimension = temp->type->dimension;
+	}
+}
+
+
+void checkLiteral(ParseTree * tree, Symtab * tab){
+	cout << "in check literal" << endl;
+	if (tree->children[0]->token->type == DECAF_NULL)
+		tree->s_type = "null";
+	else if (tree->children[0]->token->type == BOOLEAN_LITERAL)
+		tree->s_type = "bool";
+	else if (tree->children[0]->token->type == INTEGER){
+		cout << "it's an int" << endl;
+		tree->s_type = "int";
+	}
+	else if (tree->children[0]->token->type == CHARACTER)
+		tree->s_type = "char";
+	else if (tree->children[0]->token->type == STRING)
+		tree->s_type = "String";
+	tree->dimension=0;
+}
+
+void checkExpr(ParseTree * tree, Symtab * tab){
+	if(tree->children[0]->type == NONTERMINAL){
+		//We have a Primary. Deal with it later. Call typeCheck
+		typeCheck(tree->children[0], tab);
+		tree->s_type = tree->children[0]->s_type;
+		tree->dimension = tree->children[0]->dimension;
+	}
+	else{
+		string op = tree->children[0]->token->text;
+		int line = tree->children[0]->token->line;
+		for(size_t i = 0; i < tree->children.size(); i++){
+			typeCheck(tree->children[i], tab);
+		}
+		cout << op << endl;
+		if (op == "="){
+			if ((tree->children[1]->dimension) != (tree->children[2]->dimension)){
+				semantic_error("assignment different dimensions", line);
+			}
+			if  (!compatible(tree->children[2]->s_type, tree->children[1]->s_type, tab)){
+				semantic_error("incompatible types for equality op", line);
+			}
+			tree->s_type = tree->children[1]->s_type;
+			tree->dimension = tree->children[1]->dimension;
+		}
+		else if (op == "!=" or op == "=="){
+			if ((tree->children[1]->dimension) != (tree->children[2]->dimension)){
+				semantic_error("equality op different dimensions", line);
+			}
+			if  (!compatible(tree->children[1]->s_type, tree->children[2]->s_type, tab)){
+				semantic_error("incompatible types for equality op", line);
+			}
+			tree->s_type = "bool";
+			tree->dimension = 0;
+		}
+		else if (op == "||" or op == "&&"){
+			if ((tree->children[1]->s_type != "bool") or (tree->children[1]->dimension != 0)){
+				semantic_error("logical op expecting bool", line);
+			}
+			if ((tree->children[2]->s_type != "bool") or (tree->children[2]->dimension != 0)){
+				semantic_error("logical op expecting bool", line);
+			}
+			tree->s_type = "bool";
+			tree->dimension = 0;
+		}
+		else if (op == "<" or op == ">" or op == "<=" or op == ">="){
+			if ((tree->children[1]->s_type != "int") or (tree->children[1]->dimension != 0)){
+				semantic_error("comparison expecting int", line);
+			}
+			if ((tree->children.size() > 2) and ((tree->children[2]->s_type != "int") or (tree->children[2]->dimension != 0))){
+				semantic_error("comparison expecting int", line);
+			}
+			tree->s_type = "bool";
+			tree->dimension = 0;
+		}
+		else if (op == "*" or op == "/" or op == "%" or op == "+" or op == "-"){
+			if ((tree->children[1]->s_type != "int") or (tree->children[1]->dimension != 0)){
+				cout << tree->children[1]->s_type << "first" << endl;
+				semantic_error("arithmetic op expecting int", line);
+			}
+			if ((tree->children.size() > 2) and ((tree->children[2]->s_type != "int") or (tree->children[2]->dimension != 0))){
+				semantic_error("arithmetic op expecting int", line);
+			}
+			tree->s_type = "int";
+			tree->dimension = 0;
+		}
+		else if (op == "!"){
+			if ((tree->children[1]->s_type != "bool") or (tree->children[1]->dimension != 0)){
+				semantic_error("! expecting bool", line);
+			}
+			tree->s_type="bool";
+			tree->dimension = 0;
+		}
+	}
+
+}
+
+void typeCheck(ParseTree * tree, Symtab * tab){
+	if(!tree) return;
+	if(tree->symtab){
+		tab = tree->symtab;
+	}
+	if(tree->description == "expr"){
+		checkExpr(tree, tab);
+	}
+	else if(tree->description == "primary"){
+		checkPrimary(tree, tab);
+	}
+	else if(tree->description == "literal_expr"){
+		checkLiteral(tree, tab);
+	}
+	else{
+		for(size_t i = 0; i < tree->children.size(); i++){
+			typeCheck(tree->children[i], tab);
+		}
+	}
+}
 
 void testLex(){
 	int tok;
@@ -251,9 +437,10 @@ int main(int argc, char **argv){
 	yyparse();
 	openscope();
 	pass1(top);
+	traverseTree(top,0,0);
 	//Once in symtab, clear the preDefined objects
 	top->children.erase(top->children.begin(), top->children.begin()+3);
-	traverseTree(top,0,0);
+	typeCheck(top, currentScope);
 	//	cout << top->children.size() << endl;
 }
 

@@ -38,7 +38,6 @@ extern int yylineno;
 int yylex();
 
 
-stack<Token *> bop;
 
 string base26(int x)
 {

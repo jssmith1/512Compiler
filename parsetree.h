@@ -32,7 +32,8 @@ struct ParseTree {
   PTtype type;
   string description;
   Token * token;
-  string s_type; //Type assigned in pass3
+  string s_type; //Type assigned in type checking
+  int dimension; //Assigned in type checking
   vector<ParseTree *> children;
   ParseTree(string description);
   ParseTree(Token * tokp);
